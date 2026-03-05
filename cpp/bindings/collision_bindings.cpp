@@ -5,8 +5,6 @@
 #include <nanobind/stl/string.h>
 
 #include "termin/collision/collision.hpp"
-#include <termin/entity/entity.hpp>
-#include "termin/colliders/collider_component.hpp"
 
 extern "C" {
 #include "core/tc_scene.h"
@@ -92,30 +90,6 @@ NB_MODULE(_collision_native, m) {
         .def_rw("distance", &collision::RayHit::distance)
         .def("hit", &collision::RayHit::hit);
 
-    nb::class_<SceneRaycastHit>(m, "SceneRaycastHit")
-        .def_prop_ro("valid", &SceneRaycastHit::valid)
-        .def_prop_ro("entity", [](const SceneRaycastHit& h) -> nb::object {
-            if (!h.valid()) return nb::none();
-            return nb::cast(Entity(h.entity));
-        })
-        .def_prop_ro("component", [](const SceneRaycastHit& h) -> nb::object {
-            if (!h.component) return nb::none();
-            return nb::cast(h.component, nb::rv_policy::reference);
-        })
-        .def_prop_ro("point_on_ray", [](const SceneRaycastHit& h) {
-            return std::make_tuple(h.point_on_ray[0], h.point_on_ray[1], h.point_on_ray[2]);
-        })
-        .def_prop_ro("point_on_collider", [](const SceneRaycastHit& h) {
-            return std::make_tuple(h.point_on_collider[0], h.point_on_collider[1], h.point_on_collider[2]);
-        })
-        .def_prop_ro("point", [](const SceneRaycastHit& h) {
-            return std::make_tuple(h.point_on_ray[0], h.point_on_ray[1], h.point_on_ray[2]);
-        })
-        .def_prop_ro("collider_point", [](const SceneRaycastHit& h) {
-            return std::make_tuple(h.point_on_collider[0], h.point_on_collider[1], h.point_on_collider[2]);
-        })
-        .def_ro("distance", &SceneRaycastHit::distance);
-
     // ==================== ColliderPair ====================
 
     nb::class_<ColliderPair>(m, "ColliderPair")
@@ -168,22 +142,6 @@ NB_MODULE(_collision_native, m) {
             return CollisionWorld::from_scene(scene);
         }, nb::arg("scene"), nb::rv_policy::reference,
         "Get scene collision world extension")
-        .def_static("raycast_scene", [](nb::handle scene_obj, const Ray3& ray) {
-            tc_scene_handle scene = extract_scene_handle(scene_obj);
-            if (!tc_scene_handle_valid(scene)) {
-                return SceneRaycastHit{};
-            }
-            return CollisionWorld::raycast_scene(scene, ray);
-        }, nb::arg("scene"), nb::arg("ray"),
-        "Raycast against ColliderComponent objects in scene")
-        .def_static("closest_to_ray_scene", [](nb::handle scene_obj, const Ray3& ray) {
-            tc_scene_handle scene = extract_scene_handle(scene_obj);
-            if (!tc_scene_handle_valid(scene)) {
-                return SceneRaycastHit{};
-            }
-            return CollisionWorld::closest_to_ray_scene(scene, ray);
-        }, nb::arg("scene"), nb::arg("ray"),
-        "Find closest ColliderComponent hit in scene")
         .def("add", &CollisionWorld::add, nb::arg("collider"),
              nb::keep_alive<1, 2>())  // Keep collider alive while in world
         .def("remove", &CollisionWorld::remove, nb::arg("collider"))

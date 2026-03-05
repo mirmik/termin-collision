@@ -7,19 +7,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(TERMIN_COLLISION_BUILD_TESTS "Build termin-collision tests" OFF)
-option(TERMIN_COLLISION_BUILD_PYTHON "Build Python bindings (_colliders_native, _collision_native)" OFF)
-# Backward-compatible alias
-if(DEFINED TERMIN_COLLISION_ENABLE_PYTHON)
-    set(TERMIN_COLLISION_BUILD_PYTHON ${TERMIN_COLLISION_ENABLE_PYTHON})
-endif()
+option(TERMIN_BUILD_PYTHON "Build Python bindings (_colliders_native, _collision_native)" OFF)
 
 # Dependencies (current valid contract for migration phase)
 find_package(termin_base REQUIRED)
-find_package(termin_mesh REQUIRED)
 find_package(termin_inspect REQUIRED)
 find_package(termin_scene REQUIRED)
 
-if(TERMIN_COLLISION_BUILD_PYTHON)
+if(TERMIN_BUILD_PYTHON)
     if(NOT Python_EXECUTABLE)
         if(WIN32)
             set(Python_EXECUTABLE "python")
@@ -41,9 +36,7 @@ set(TERMIN_COLLISION_SOURCES
     src/termin_collision_version.cpp
     src/termin_collision_runtime.c
     src/termin/tc_collision_c_api.cpp
-    src/termin/colliders/collider_component.cpp
     src/termin/collision/collision_world_c.cpp
-    src/termin/collision/collision_world_scene.cpp
     src/termin/collision/tc_collision_world_ext.c
 )
 
@@ -61,7 +54,6 @@ target_include_directories(termin_collision PUBLIC
 
 target_link_libraries(termin_collision PUBLIC
     tcbase::termin_base
-    tmesh::termin_mesh
     termin_inspect::termin_inspect
     termin_scene::termin_scene
 )
@@ -74,7 +66,7 @@ if(NOT WIN32)
     set_target_properties(termin_collision PROPERTIES INSTALL_RPATH "$ORIGIN")
 endif()
 
-if(TERMIN_COLLISION_BUILD_PYTHON)
+if(TERMIN_BUILD_PYTHON)
     if(NOT TARGET nanobind)
         nanobind_build_library(nanobind)
     endif()
@@ -101,7 +93,7 @@ if(TERMIN_COLLISION_BUILD_PYTHON)
     endif()
 endif()
 
-if(TERMIN_COLLISION_BUILD_PYTHON AND TARGET nanobind)
+if(TERMIN_BUILD_PYTHON AND TARGET nanobind)
     install(TARGETS nanobind
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
