@@ -7,7 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(TERMIN_COLLISION_BUILD_TESTS "Build termin-collision tests" OFF)
-option(TERMIN_COLLISION_ENABLE_PYTHON "Build Python bindings (_colliders_native, _collision_native)" ON)
+option(TERMIN_COLLISION_BUILD_PYTHON "Build Python bindings (_colliders_native, _collision_native)" OFF)
+# Backward-compatible alias
+if(DEFINED TERMIN_COLLISION_ENABLE_PYTHON)
+    set(TERMIN_COLLISION_BUILD_PYTHON ${TERMIN_COLLISION_ENABLE_PYTHON})
+endif()
 
 # Dependencies (current valid contract for migration phase)
 find_package(termin_base REQUIRED)
@@ -15,7 +19,7 @@ find_package(termin_mesh REQUIRED)
 find_package(termin_inspect REQUIRED)
 find_package(termin_scene REQUIRED)
 
-if(TERMIN_COLLISION_ENABLE_PYTHON)
+if(TERMIN_COLLISION_BUILD_PYTHON)
     if(NOT Python_EXECUTABLE)
         if(WIN32)
             set(Python_EXECUTABLE "python")
@@ -24,15 +28,13 @@ if(TERMIN_COLLISION_ENABLE_PYTHON)
         endif()
     endif()
 
-    find_package(Python 3.8 COMPONENTS Interpreter Development QUIET)
-    if(Python_FOUND)
-        execute_process(
-            COMMAND ${Python_EXECUTABLE} -m nanobind --cmake_dir
-            OUTPUT_VARIABLE nanobind_DIR
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
-        find_package(nanobind CONFIG QUIET)
-    endif()
+    find_package(Python 3.8 COMPONENTS Interpreter Development REQUIRED)
+    execute_process(
+        COMMAND ${Python_EXECUTABLE} -m nanobind --cmake_dir
+        OUTPUT_VARIABLE nanobind_DIR
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    find_package(nanobind CONFIG REQUIRED)
 endif()
 
 set(TERMIN_COLLISION_SOURCES
@@ -72,7 +74,7 @@ if(NOT WIN32)
     set_target_properties(termin_collision PROPERTIES INSTALL_RPATH "$ORIGIN")
 endif()
 
-if(TERMIN_COLLISION_ENABLE_PYTHON AND nanobind_FOUND)
+if(TERMIN_COLLISION_BUILD_PYTHON)
     if(NOT TARGET nanobind)
         nanobind_build_library(nanobind)
     endif()
@@ -99,7 +101,7 @@ if(TERMIN_COLLISION_ENABLE_PYTHON AND nanobind_FOUND)
     endif()
 endif()
 
-if(TERMIN_COLLISION_ENABLE_PYTHON AND nanobind_FOUND AND TARGET nanobind)
+if(TERMIN_COLLISION_BUILD_PYTHON AND TARGET nanobind)
     install(TARGETS nanobind
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
