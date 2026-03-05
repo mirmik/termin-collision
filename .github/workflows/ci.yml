@@ -63,12 +63,15 @@ jobs:
       - name: Install Python build dependencies
         run: python -m pip install --upgrade pip setuptools wheel nanobind
 
+      - name: Setup runtime library path
+        run: echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/deps/install/lib:${LD_LIBRARY_PATH:-}" >> $GITHUB_ENV
+
       - name: Configure, build and install termin-base
         run: |
           cmake -S deps/termin-base -B deps/termin-base/build \
             -DCMAKE_BUILD_TYPE=Release \
             -DTERMIN_BASE_BUILD_TESTS=ON \
-            -DTCBASE_BUILD_PYTHON=OFF \
+            -DTERMIN_BUILD_PYTHON=OFF \
             -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/deps/install
           cmake --build deps/termin-base/build --parallel
           cmake --install deps/termin-base/build
@@ -98,7 +101,7 @@ jobs:
           cmake -S deps/termin-inspect -B deps/termin-inspect/build \
             -DCMAKE_BUILD_TYPE=Release \
             -DTI_BUILD_TESTS=ON \
-            -DTI_BUILD_PYTHON=OFF \
+            -DTERMIN_BUILD_PYTHON=OFF \
             -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/deps/install \
             -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/deps/install
           cmake --build deps/termin-inspect/build --parallel
@@ -110,7 +113,7 @@ jobs:
           cmake -S deps/termin-scene -B deps/termin-scene/build \
             -DCMAKE_BUILD_TYPE=Release \
             -DTERMIN_SCENE_BUILD_TESTS=ON \
-            -DTERMIN_SCENE_ENABLE_PYTHON=OFF \
+            -DTERMIN_BUILD_PYTHON=OFF \
             -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/deps/install \
             -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/deps/install
           cmake --build deps/termin-scene/build --parallel
@@ -122,7 +125,7 @@ jobs:
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DTERMIN_COLLISION_BUILD_TESTS=ON \
-            -DTERMIN_COLLISION_ENABLE_PYTHON=OFF \
+            -DTERMIN_BUILD_PYTHON=OFF \
             -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/deps/install
 
       - name: Build termin-collision
