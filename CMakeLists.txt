@@ -11,7 +11,7 @@ option(TERMIN_COLLISION_ENABLE_PYTHON "Build Python bindings (_colliders_native,
 
 # Dependencies (current valid contract for migration phase)
 find_package(termin_base REQUIRED)
-find_package(termin_graphics REQUIRED)
+find_package(termin_mesh REQUIRED)
 find_package(termin_inspect REQUIRED)
 find_package(termin_scene REQUIRED)
 
@@ -57,7 +57,7 @@ target_include_directories(termin_collision PUBLIC
 
 target_link_libraries(termin_collision PUBLIC
     tcbase::termin_base
-    tgfx::termin_graphics
+    tmesh::termin_mesh
     termin_inspect::termin_inspect
     termin_scene::termin_scene
 )
