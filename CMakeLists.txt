@@ -71,14 +71,14 @@ if(NOT WIN32)
 endif()
 
 if(TERMIN_COLLISION_ENABLE_PYTHON AND nanobind_FOUND)
-    if(NOT TARGET nanobind-static)
-        nanobind_build_library(nanobind-static)
+    if(NOT TARGET nanobind)
+        nanobind_build_library(nanobind)
     endif()
 
-    nanobind_add_module(_colliders_native cpp/bindings/colliders_bindings.cpp)
+    nanobind_add_module(_colliders_native NB_SHARED cpp/bindings/colliders_bindings.cpp)
     target_link_libraries(_colliders_native PRIVATE termin_collision)
 
-    nanobind_add_module(_collision_native cpp/bindings/collision_bindings.cpp)
+    nanobind_add_module(_collision_native NB_SHARED cpp/bindings/collision_bindings.cpp)
     target_link_libraries(_collision_native PRIVATE termin_collision termin_scene::termin_scene)
 
     set(TERMIN_COLLISION_PY_RPATH "$ORIGIN;$ORIGIN/..;$ORIGIN/../..;$ORIGIN/../../..")
@@ -95,6 +95,13 @@ if(TERMIN_COLLISION_ENABLE_PYTHON AND nanobind_FOUND)
         install(TARGETS _colliders_native DESTINATION ${TERMIN_COLLISION_PYTHON_PREFIX}/colliders)
         install(TARGETS _collision_native DESTINATION ${TERMIN_COLLISION_PYTHON_PREFIX}/collision)
     endif()
+endif()
+
+if(TERMIN_COLLISION_ENABLE_PYTHON AND nanobind_FOUND AND TARGET nanobind)
+    install(TARGETS nanobind
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
 endif()
 
 if(TERMIN_COLLISION_BUILD_TESTS)
