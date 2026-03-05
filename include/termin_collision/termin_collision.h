@@ -15,6 +15,8 @@ extern "C" {
 #endif
 
 TERMIN_COLLISION_API const char* termin_collision_version(void);
+TERMIN_COLLISION_API void termin_collision_runtime_init(void);
+TERMIN_COLLISION_API void termin_collision_runtime_shutdown(void);
 
 #ifdef __cplusplus
 }

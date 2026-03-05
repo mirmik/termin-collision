@@ -37,10 +37,12 @@ endif()
 
 set(TERMIN_COLLISION_SOURCES
     src/termin_collision_version.cpp
+    src/termin_collision_runtime.c
     src/termin/tc_collision_c_api.cpp
     src/termin/colliders/collider_component.cpp
     src/termin/collision/collision_world_c.cpp
     src/termin/collision/collision_world_scene.cpp
+    src/termin/collision/tc_collision_world_ext.c
 )
 
 add_library(termin_collision SHARED ${TERMIN_COLLISION_SOURCES})
