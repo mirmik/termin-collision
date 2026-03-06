@@ -24,11 +24,6 @@ if(TERMIN_BUILD_PYTHON)
     endif()
 
     find_package(Python 3.8 COMPONENTS Interpreter Development REQUIRED)
-    execute_process(
-        COMMAND ${Python_EXECUTABLE} -m nanobind --cmake_dir
-        OUTPUT_VARIABLE nanobind_DIR
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
     find_package(nanobind CONFIG REQUIRED)
 endif()
 
@@ -67,10 +62,6 @@ if(NOT WIN32)
 endif()
 
 if(TERMIN_BUILD_PYTHON)
-    if(NOT TARGET nanobind)
-        nanobind_build_library(nanobind)
-    endif()
-
     nanobind_add_module(_colliders_native NB_SHARED cpp/bindings/colliders_bindings.cpp)
     target_link_libraries(_colliders_native PRIVATE termin_collision)
 
@@ -96,12 +87,6 @@ if(TERMIN_BUILD_PYTHON)
     endif()
 endif()
 
-if(TERMIN_BUILD_PYTHON AND TARGET nanobind)
-    install(TARGETS nanobind
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-endif()
 
 if(TERMIN_COLLISION_BUILD_TESTS)
     enable_testing()
